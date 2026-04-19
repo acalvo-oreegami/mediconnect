@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0A1628">
+  <title>MediConnect - Dashboard de Veille</title>
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWVkaUNvbm5lY3QgRGFzaGJvYXJkIiwic2hvcnRfbmFtZSI6Ik1lZGlDb25uZWN0Iiwic3RhcnRfdXJsIjoiLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwQTE2MjgiLCJ0aGVtZV9jb2xvciI6IiMwQTE2MjgiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCNGJXeHVjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBd01DOXpkbWNpSUhkcFpIUm9QU0l4T1RJaUlHaGxhV2RvZEQwaU1Ua3lJajQ4Y21WamRDQjNhV1IwYUQwaU1Ua3lJaUJvWldsbmFIUTlJakU1TWlJZ1ptbHNiRDBpSTBNME5EWkdSaUl2UGp3dmMzWm5QZz09Iiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Palette médicale moderne */
+      --bg-primary: #0A1628;
+      --bg-secondary: #132038;
+      --bg-card: #1A2942;
+      --bg-hover: #243654;
+      
+      --accent-primary: #00D9FF;
+      --accent-secondary: #C446FF;
+      --accent-warning: #FFB800;
+      --accent-critical: #FF4757;
+      --accent-success: #00E676;
+      
+      --text-primary: #FFFFFF;
+      --text-secondary: #B4C6E0;
+      --text-muted: #6B7C98;
+      
+      --border: rgba(0, 217, 255, 0.15);
+      --shadow: rgba(0, 217, 255, 0.1);
+      
+      /* Typography */
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font-display);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Animated background grid */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 217, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 217, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+      animation: gridPulse 8s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Login Screen */
+    .login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 20px 60px var(--shadow);
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-logo {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .login-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .btn-google:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
+    }
+
+    .demo-note {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(255, 184, 0, 0.1);
+      border: 1px solid rgba(255, 184, 0, 0.3);
+      border-radius: 8px;
+      color: var(--accent-warning);
+      font-size: 0.9rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Main Dashboard */
+    .dashboard {
+      display: none;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .dashboard.active {
+      display: block;
+    }
+
+    /* Header */
+    header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .view-selector {
+      display: flex;
+      gap: 0.5rem;
+      background: var(--bg-card);
+      padding: 0.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .view-btn {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .view-btn.active {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: white;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .notification-badge {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      background: var(--bg-card);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border);
+    }
+
+    .notification-badge:hover {
+      background: var(--bg-hover);
+    }
+
+    .notification-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--accent-critical);
+      color: white;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .user-profile:hover {
+      background: var(--bg-hover);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 2rem;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    .view-content {
+      display: none;
+    }
+
+    .view-content.active {
+      display: block;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px var(--shadow);
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-primary), white);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-change.positive {
+      color: var(--accent-success);
+    }
+
+    .stat-change.negative {
+      color: var(--accent-critical);
+    }
+
+    /* Alerts Section */
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-tab {
+      padding: 0.5rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-tab.active {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: white;
+      border-color: transparent;
+    }
+
+    /* Alert Card */
+    .alert-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--accent-primary);
+      transition: all 0.3s ease, opacity 0.3s ease, max-height 0.3s ease;
+      max-height: 1000px;
+      opacity: 1;
+      overflow: hidden;
+    }
+
+    .alert-card:hover {
+      background: var(--bg-hover);
+      border-left-width: 6px;
+    }
+
+    .alert-card.hidden {
+      opacity: 0;
+      max-height: 0;
+      margin-bottom: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border: none;
+    }
+
+    .alert-card.critical {
+      border-left-color: var(--accent-critical);
+    }
+
+    .alert-card.warning {
+      border-left-color: var(--accent-warning);
+    }
+
+    .alert-card.success {
+      border-left-color: var(--accent-success);
+    }
+
+    .alert-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .alert-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .alert-badge.critical {
+      background: rgba(255, 71, 87, 0.2);
+      color: var(--accent-critical);
+    }
+
+    .alert-badge.important {
+      background: rgba(255, 184, 0, 0.2);
+      color: var(--accent-warning);
+    }
+
+    .alert-badge.info {
+      background: rgba(0, 217, 255, 0.2);
+      color: var(--accent-primary);
+    }
+
+    .alert-time {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .alert-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .alert-description {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .alert-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      padding: 0.25rem 0.75rem;
+      background: rgba(0, 217, 255, 0.1);
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: var(--accent-primary);
+      font-family: var(--font-mono);
+    }
+
+    /* Charts */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .chart-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      min-height: 300px;
+    }
+
+    .chart-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--text-secondary);
+    }
+
+    /* Insights Cards */
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .insight-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .insight-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(0, 217, 255, 0.1), transparent);
+      border-radius: 50%;
+    }
+
+    .insight-number {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .insight-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .insight-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .header-left {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+      }
+
+      .view-selector {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      .main-content {
+        padding: 1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .insights-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Loading animation */
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-primary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <div class="login-logo">MediConnect</div>
+      <div class="login-subtitle">Dashboard de Veille Stratégique</div>
+      <button class="btn-google" onclick="handleLogin()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Se connecter avec Google
+      </button>
+      <div class="demo-note">
+        🔧 Mode DEMO : OAuth Google en pause<br>
+        Cliquez pour accéder au dashboard
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Dashboard -->
+  <div class="dashboard" id="dashboard">
+    <header>
+      <div class="header-left">
+        <div class="logo">MediConnect</div>
+        <div class="view-selector">
+          <button class="view-btn active" onclick="switchView('direction')">Direction</button>
+          <button class="view-btn" onclick="switchView('technique')">Technique</button>
+          <button class="view-btn" onclick="switchView('projet')">Projet</button>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="notification-badge">
+          🔔
+          <span class="notification-count">12</span>
+        </div>
+        <div class="user-profile">
+          <div class="user-avatar">DL</div>
+          <span>Dr. Lambert</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <!-- VUE DIRECTION -->
+      <div class="view-content active" id="view-direction">
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Articles cette semaine</div>
+            <div class="stat-value">127</div>
+            <div class="stat-change positive">
+              ↗ +23% vs semaine dernière
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Alertes critiques</div>
+            <div class="stat-value">3</div>
+            <div class="stat-change negative">
+              ↗ +2 nouvelles alertes
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Taux de pertinence</div>
+            <div class="stat-value">87%</div>
+            <div class="stat-change positive">
+              ↗ +5% vs semaine dernière
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Délai détection</div>
+            <div class="stat-value">2.3h</div>
+            <div class="stat-change positive">
+              ↘ -1.2h amélioration
+            </div>
+          </div>
+        </div>
+
+        <!-- Synthèse Exécutive -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon">💡</div>
+              3 Insights Clés de la Semaine
+            </div>
+          </div>
+          <div class="insights-grid">
+            <div class="insight-card">
+              <div class="insight-number">01</div>
+              <div class="insight-title">Évolution RGPD Santé</div>
+              <div class="insight-description">
+                La CNIL a publié de nouvelles recommandations sur l'hébergement des données de santé. 
+                Impact direct sur notre choix d'architecture. Action requise sous 45 jours.
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-number">02</div>
+              <div class="insight-title">Adoption No-Code +340%</div>
+              <div class="insight-description">
+                Les établissements de santé français ont augmenté leur adoption d'outils no-code de 340% en 2024. 
+                Opportunité marché confirmée.
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-number">03</div>
+              <div class="insight-title">Concurrent Direct Identifié</div>
+              <div class="insight-description">
+                "HealthFlow" (startup Lyon) lance une solution similaire. Analyse concurrentielle complète disponible.
+                Différenciation urgente nécessaire.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alertes Stratégiques -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon">⚠️</div>
+              Alertes Stratégiques
+            </div>
+            <div class="filter-tabs">
+              <div class="filter-tab active">Toutes</div>
+              <div class="filter-tab">Critiques</div>
+              <div class="filter-tab">Réglementaires</div>
+            </div>
+          </div>
+
+          <div class="alert-card critical">
+            <div class="alert-header">
+              <span class="alert-badge critical">CRITIQUE</span>
+              <span class="alert-time">Il y a 2h</span>
+            </div>
+            <div class="alert-title">Nouvelles exigences HDS obligatoires dès janvier 2025</div>
+            <div class="alert-description">
+              Le décret n°2024-1234 impose une certification HDS pour tout traitement de données de santé. 
+              Notre feuille de route doit intégrer cette contrainte. Budget estimé : 15-25k€. 
+              Délai de certification : 4-6 mois.
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#réglementation</span>
+              <span class="tag">#conformité</span>
+              <span class="tag">#impact-budget</span>
+            </div>
+          </div>
+
+          <div class="alert-card warning">
+            <div class="alert-header">
+              <span class="alert-badge important">IMPORTANT</span>
+              <span class="alert-time">Hier</span>
+            </div>
+            <div class="alert-title">Airtable annonce une hausse tarifaire de 40% sur les plans Enterprise</div>
+            <div class="alert-description">
+              Impact potentiel sur notre budget infrastructure si nous choisissons Airtable comme base de données principale. 
+              Opportunité de réévaluer les alternatives (Baserow, NocoDB).
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#coûts</span>
+              <span class="tag">#infrastructure</span>
+              <span class="tag">#décision-tech</span>
+            </div>
+          </div>
+
+          <div class="alert-card">
+            <div class="alert-header">
+              <span class="alert-badge info">INFORMATIF</span>
+              <span class="alert-time">Il y a 3 jours</span>
+            </div>
+            <div class="alert-title">Étude de cas : CHU Bordeaux migre vers une stack no-code</div>
+            <div class="alert-description">
+              Le CHU de Bordeaux a documenté sa migration complète vers des outils no-code. 
+              ROI de 200% en 18 mois, 60% de réduction du temps de développement. 
+              Cas d'usage très proche de MediConnect.
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#benchmark</span>
+              <span class="tag">#retour-expérience</span>
+              <span class="tag">#validation-concept</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tendances Marché -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon">📈</div>
+              Tendances Marché
+            </div>
+          </div>
+          <div class="charts-grid">
+            <div class="chart-container">
+              <div class="chart-title">Adoption No-Code Santé (6 derniers mois)</div>
+              <canvas id="adoptionChart"></canvas>
+            </div>
+            <div class="chart-container">
+              <div class="chart-title">Répartition Sources d'Information</div>
+              <canvas id="sourcesChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VUE TECHNIQUE -->
+      <div class="view-content" id="view-technique">
+        <!-- Stats Techniques -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Mises à jour détectées</div>
+            <div class="stat-value">18</div>
+            <div class="stat-change positive">
+              ↗ Cette semaine
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Vulnérabilités critiques</div>
+            <div class="stat-value">2</div>
+            <div class="stat-change negative">
+              ⚠️ Action requise
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Nouvelles intégrations</div>
+            <div class="stat-value">7</div>
+            <div class="stat-change positive">
+              ↗ APIs disponibles
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Score performance</div>
+            <div class="stat-value">94</div>
+            <div class="stat-change positive">
+              ↗ +3 points
+            </div>
+          </div>
+        </div>
+
+        <!-- Alertes Sécurité -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon">🔒</div>
+              Alertes Sécurité & Conformité
+            </div>
+          </div>
+
+          <div class="alert-card critical">
+            <div class="alert-header">
+              <span class="alert-badge critical">CRITIQUE</span>
+              <span class="alert-time">Il y a 4h</span>
+            </div>
+            <div class="alert-title">CVE-2024-8923: Vulnérabilité critique dans n8n < v1.28.0</div>
+            <div class="alert-description">
+              Une faille de sécurité permettant l'exécution de code arbitraire a été découverte dans n8n. 
+              Patch disponible dans la version 1.28.0. Mise à jour urgente recommandée avant déploiement production.
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#sécurité</span>
+              <span class="tag">#n8n</span>
+              <span class="tag">#patch-disponible</span>
+            </div>
+          </div>
+
+          <div class="alert-card warning">
+            <div class="alert-header">
+              <span class="alert-badge important">IMPORTANT</span>
+              <span class="alert-time">Hier</span>
+            </div>
+            <div class="alert-title">Airtable migre vers une authentification OAuth2 obligatoire</div>
+            <div class="alert-description">
+              À partir du 15 mars 2025, les API keys personnelles seront dépréciées. 
+              Migration vers OAuth2 requise pour toutes nos intégrations Airtable.
+              Impact estimé : 2-3 jours de développement.
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#authentification</span>
+              <span class="tag">#airtable</span>
+              <span class="tag">#migration-requise</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mises à jour Outils -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon">🔄</div>
+              Mises à Jour & Nouveautés
+            </div>
+          </div>
+
+          <div class="alert-card">
+            <div class="alert-header">
+              <span class="alert-badge info">NOUVEAU</span>
+              <span class="alert-time">Il y a 1 jour</span>
+            </div>
+            <div class="alert-title">n8n 1.29.0 : Support natif de PostgreSQL 16 et amélioration performances</div>
+            <div class="alert-description">
+              La nouvelle version apporte un support complet de PostgreSQL 16 avec des gains de performance de 30% 
+              sur les workflows complexes. Nouvelles fonctionnalités : AI Agents améliorés, 45 nouveaux nodes.
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#n8n</span>
+              <span class="tag">#performance</span>
+              <span class="tag">#postgresql</span>
+            </div>
+          </div>
+
+          <div class="alert-card">
+            <div class="alert-header">
+              <span class="alert-badge info">NOUVEAU</span>
+              <span class="alert-time">Il y a 2 jours</span>
+            </div>
+            <div class="alert-title">Supabase lance "Supabase Vector" pour le RAG à grande échelle</div>
+            <div class="alert-description">
+              Nouvelle extension pgvector optimisée permettant le stockage et la recherche de millions de vecteurs 
+              avec une latence < 50ms. Parfait pour notre système de recherche sémantique d'articles.
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#supabase</span>
+              <span class="tag">#ai</span>
+              <span class="tag">#rag</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Benchmarks -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon">⚡</div>
+              Benchmarks & Comparatifs
+            </div>
+          </div>
+          <div class="charts-grid">
+            <div class="chart-container">
+              <div class="chart-title">Performance Bases No-Code (req/s)</div>
+              <canvas id="perfChart"></canvas>
+            </div>
+            <div class="chart-container">
+              <div class="chart-title">Coût Infrastructure par Utilisateur</div>
+              <canvas id="costChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VUE PROJET -->
+      <div class="view-content" id="view-projet">
+        <!-- Stats Projet -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Opportunités détectées</div>
+            <div class="stat-value">24</div>
+            <div class="stat-change positive">
+              ↗ +8 cette semaine
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Risques actifs</div>
+            <div class="stat-value">5</div>
+            <div class="stat-change negative">
+              ⚠️ Dont 2 critiques
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Veille concurrentielle</div>
+            <div class="stat-value">12</div>
+            <div class="stat-change positive">
+              Acteurs surveillés
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Actions recommandées</div>
+            <div class="stat-value">7</div>
+            <div class="stat-change">
+              À prioriser
+            </div>
+          </div>
+        </div>
+
+        <!-- Impact Projet -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon">🎯</div>
+              Impact Direct sur MediConnect
+            </div>
+          </div>
+
+          <div class="alert-card critical">
+            <div class="alert-header">
+              <span class="alert-badge critical">CRITIQUE</span>
+              <span class="alert-time">Aujourd'hui</span>
+            </div>
+            <div class="alert-title">Certification HDS obligatoire : impact roadmap Q1 2025</div>
+            <div class="alert-description">
+              La nouvelle réglementation impose une refonte de notre architecture d'hébergement. 
+              Décisions requises : cloud provider certifié HDS (OVH, Outscale, 3DS Outscale), 
+              budget certification (15-25k€), délai d'obtention (4-6 mois).
+              <br><br>
+              <strong>Action recommandée :</strong> Organiser un comité de pilotage sous 7 jours 
+              pour valider la stratégie de conformité.
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#roadmap</span>
+              <span class="tag">#conformité</span>
+              <span class="tag">#architecture</span>
+              <span class="tag">#budget</span>
+            </div>
+          </div>
+
+          <div class="alert-card warning">
+            <div class="alert-header">
+              <span class="alert-badge important">IMPORTANT</span>
+              <span class="alert-time">Hier</span>
+            </div>
+            <div class="alert-title">Alternative Airtable : Baserow supporte désormais le RGPD santé</div>
+            <div class="alert-description">
+              Baserow (open-source, self-hosted) vient d'obtenir une certification compatible RGPD santé. 
+              Économie potentielle : ~15k€/an vs Airtable Enterprise. 
+              Contrôle total des données, hébergement en France possible.
+              <br><br>
+              <strong>Action recommandée :</strong> POC Baserow vs Airtable sur un workflow pilote 
+              pour évaluer la faisabilité technique.
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#optimisation</span>
+              <span class="tag">#coûts</span>
+              <span class="tag">#alternative</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opportunités -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon">💡</div>
+              Opportunités d'Optimisation
+            </div>
+          </div>
+
+          <div class="alert-card">
+            <div class="alert-header">
+              <span class="alert-badge info">OPPORTUNITÉ</span>
+              <span class="alert-time">Il y a 2 jours</span>
+            </div>
+            <div class="alert-title">Nouveau : n8n Cloud propose un plan "Healthcare" certifié</div>
+            <div class="alert-description">
+              n8n Cloud vient de lancer un plan spécialisé santé avec hébergement en Europe, 
+              BAA (Business Associate Agreement), et support 24/7. 
+              Cela pourrait simplifier considérablement notre gestion de la conformité.
+              <br><br>
+              <strong>Avantages :</strong> Pas de gestion infra, conformité incluse, support expert.
+              <strong>Prix :</strong> ~800€/mois (vs ~1200€/mois self-hosted + conformité).
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#n8n</span>
+              <span class="tag">#simplification</span>
+              <span class="tag">#conformité</span>
+            </div>
+          </div>
+
+          <div class="alert-card">
+            <div class="alert-header">
+              <span class="alert-badge info">OPPORTUNITÉ</span>
+              <span class="alert-time">Il y a 3 jours</span>
+            </div>
+            <div class="alert-title">Template n8n "Medical Appointment System" disponible</div>
+            <div class="alert-description">
+              Un développeur a publié un template complet de système de rendez-vous médical sur n8n. 
+              Fonctionnalités : calendrier, rappels SMS, intégration Doctolib, gestion salles.
+              Gain de temps estimé : 2-3 semaines de développement.
+              <br><br>
+              <strong>Action :</strong> Analyser le template pour réutilisation dans notre module RDV.
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#template</span>
+              <span class="tag">#gain-temps</span>
+              <span class="tag">#rendez-vous</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Veille Concurrentielle -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon">👁️</div>
+              Veille Concurrentielle
+            </div>
+          </div>
+
+          <div class="alert-card warning">
+            <div class="alert-header">
+              <span class="alert-badge important">CONCURRENT</span>
+              <span class="alert-time">Aujourd'hui</span>
+            </div>
+            <div class="alert-title">HealthFlow (Lyon) lève 2M€ pour une solution similaire</div>
+            <div class="alert-description">
+              La startup lyonnaise HealthFlow vient de lever 2M€ pour développer une plateforme 
+              no-code de gestion médicale. Cible : cabinets médicaux et petits établissements.
+              <br><br>
+              <strong>Analyse :</strong> Positionnement très proche de MediConnect. 
+              Leur différenciation : focus sur l'IA prédictive pour la planification.
+              Notre avantage : expertise terrain Dr. Lambert, intégration RPPS native.
+              <br><br>
+              <strong>Action :</strong> Accélérer notre différenciation sur les fonctionnalités métier spécialisées.
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#concurrent</span>
+              <span class="tag">#levée-fonds</span>
+              <span class="tag">#différenciation</span>
+            </div>
+          </div>
+
+          <div class="alert-card">
+            <div class="alert-header">
+              <span class="alert-badge info">BENCHMARK</span>
+              <span class="alert-time">Hier</span>
+            </div>
+            <div class="alert-title">Étude de cas : "MedFlow" atteint 200 cliniques en 18 mois</div>
+            <div class="alert-description">
+              MedFlow (Allemagne) a documenté leur croissance : 0 → 200 cliniques en 18 mois 
+              avec une stack no-code (Make.com + Airtable + Notion).
+              <br><br>
+              <strong>Enseignements :</strong>
+              - Freemium agressif (30 jours gratuit complet)
+              - Support onboarding dédié (clé du succès)
+              - Templates préconfigurés par spécialité
+              - Communauté d'entraide très active
+            </div>
+            <div class="alert-tags">
+              <span class="tag">#benchmark</span>
+              <span class="tag">#stratégie-croissance</span>
+              <span class="tag">#bonnes-pratiques</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Service Worker désactivé en mode fichier local
+    // (Il sera activé automatiquement une fois le dashboard hébergé sur un serveur)
+
+    // Gestion de l'authentification (mode DEMO)
+    function handleLogin() {
+      // En production, ici on ferait l'OAuth Google
+      // Pour la démo, on affiche directement le dashboard
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').classList.add('active');
+      loadDashboardData();
+    }
+
+    // Changement de vue
+    function switchView(viewName) {
+      // Mettre à jour les boutons
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // Mettre à jour les vues
+      document.querySelectorAll('.view-content').forEach(view => {
+        view.classList.remove('active');
+      });
+      document.getElementById('view-' + viewName).classList.add('active');
+
+      // Mettre à jour le profil utilisateur (simulation)
+      const userProfiles = {
+        'direction': { name: 'Dr. Lambert', avatar: 'DL' },
+        'technique': { name: 'Marc Dubois', avatar: 'MD' },
+        'projet': { name: 'Vous', avatar: 'PM' }
+      };
+      
+      const profile = userProfiles[viewName];
+      document.querySelector('.user-avatar').textContent = profile.avatar;
+      document.querySelector('.user-profile span').textContent = profile.name;
+      
+      // Recharger les données pour la nouvelle vue
+      if (!USE_DEMO_DATA) {
+        loadDashboardData();
+      }
+    }
+
+    // ⚙️ CONFIGURATION API - Votre webhook n8n WF3
+    const API_URL = 'https://oreegami.app.n8n.cloud/webhook/mediconnect-api';
+    
+    // 🎛️ MODE DE FONCTIONNEMENT
+    // true  = Mode DEMO (données statiques pour tester l'interface)
+    // false = Mode PRODUCTION (données réelles depuis Notion via n8n)
+    // ⚠️ METTRE À FALSE UNE FOIS QUE WF3 EST CONFIGURÉ ET ACTIF
+    const USE_DEMO_DATA = true; // ← TEMPORAIREMENT EN MODE DEMO
+
+    // Chargement des données du dashboard
+    async function loadDashboardData() {
+      if (USE_DEMO_DATA) {
+        console.log('Dashboard chargé - Mode DEMO');
+        return;
+      }
+
+      const currentView = document.querySelector('.view-btn.active')?.textContent.toLowerCase() || 'direction';
+      console.log(`🔄 Chargement des données pour la vue: ${currentView}`);
+      
+      try {
+        // Charger les stats
+        console.log('📊 Chargement stats...');
+        const statsResponse = await fetch(`${API_URL}?endpoint=stats`);
+        if (!statsResponse.ok) throw new Error('Erreur stats: ' + statsResponse.status);
+        const statsData = await statsResponse.json();
+        updateStats(statsData);
+        console.log('✅ Stats chargées:', statsData);
+        
+        // Charger les alertes pour la vue active
+        console.log('🚨 Chargement alertes...');
+        const alertsResponse = await fetch(`${API_URL}?endpoint=alerts&view=${currentView}`);
+        if (!alertsResponse.ok) throw new Error('Erreur alerts: ' + alertsResponse.status);
+        const alertsData = await alertsResponse.json();
+        updateAlerts(alertsData.alerts, currentView);
+        console.log(`✅ ${alertsData.alerts.length} alertes chargées`);
+        
+        // Charger les insights
+        console.log('💡 Chargement insights...');
+        const insightsResponse = await fetch(`${API_URL}?endpoint=insights&view=${currentView}`);
+        if (!insightsResponse.ok) throw new Error('Erreur insights: ' + insightsResponse.status);
+        const insightsData = await insightsResponse.json();
+        updateInsights(insightsData.insights);
+        console.log('✅ Insights chargés:', insightsData.insights);
+        
+      } catch (error) {
+        console.error('❌ Erreur chargement données:', error);
+        showErrorMessage('Impossible de charger les données. Vérifiez que le workflow n8n WF3 est actif.');
+      }
+    }
+
+    function updateStats(data) {
+      // Mettre à jour les cartes de stats
+      const statCards = document.querySelectorAll('.stat-card');
+      if (statCards.length >= 4) {
+        // Articles cette semaine
+        statCards[0].querySelector('.stat-value').textContent = data.articles_semaine || 0;
+        const articleChange = statCards[0].querySelector('.stat-change');
+        articleChange.textContent = `${data.articles_semaine_variation >= 0 ? '↗' : '↘'} ${Math.abs(data.articles_semaine_variation)}% vs semaine dernière`;
+        articleChange.className = 'stat-change ' + (data.articles_semaine_variation >= 0 ? 'positive' : 'negative');
+        
+        // Alertes critiques
+        statCards[1].querySelector('.stat-value').textContent = data.alertes_critiques || 0;
+        statCards[1].querySelector('.stat-change').textContent = `↗ +${data.alertes_critiques_nouvelles} nouvelles alertes`;
+        
+        // Taux de pertinence
+        statCards[2].querySelector('.stat-value').textContent = data.taux_pertinence + '%' || '0%';
+        statCards[2].querySelector('.stat-change').textContent = `↗ +${data.taux_pertinence_variation}% vs semaine dernière`;
+        
+        // Délai détection
+        statCards[3].querySelector('.stat-value').textContent = data.delai_detection + 'h' || '0h';
+        statCards[3].querySelector('.stat-change').textContent = `↘ ${data.delai_detection_variation}h amélioration`;
+      }
+    }
+
+    function updateAlerts(alerts, viewName) {
+      // Trouver le conteneur d'alertes pour la vue active
+      const viewContent = document.getElementById('view-' + viewName);
+      if (!viewContent) return;
+      
+      const sections = viewContent.querySelectorAll('.section');
+      let alertContainer = null;
+      
+      // Trouver la section qui contient des alertes
+      sections.forEach(section => {
+        if (section.querySelector('.alert-card')) {
+          alertContainer = section;
+        }
+      });
+      
+      if (!alertContainer) return;
+      
+      // Vider les alertes existantes
+      const existingAlerts = alertContainer.querySelectorAll('.alert-card');
+      existingAlerts.forEach(alert => alert.remove());
+      
+      // Insérer les nouvelles alertes
+      const insertPoint = alertContainer.querySelector('.filter-tabs')?.parentElement.parentElement || alertContainer;
+      
+      alerts.forEach(alert => {
+        const alertHTML = `
+          <div class="alert-card ${alert.badge}">
+            <div class="alert-header">
+              <span class="alert-badge ${alert.badge}">${alert.badgeLabel}</span>
+              <span class="alert-time">${alert.time}</span>
+            </div>
+            <div class="alert-title">${alert.title}</div>
+            <div class="alert-description">${alert.description}</div>
+            <div class="alert-tags">
+              ${alert.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+            </div>
+          </div>
+        `;
+        insertPoint.insertAdjacentHTML('beforeend', alertHTML);
+      });
+      
+      // Si aucune alerte
+      if (alerts.length === 0) {
+        const noAlertsHTML = `
+          <div class="alert-card">
+            <div class="alert-title">✨ Aucune alerte pour le moment</div>
+            <div class="alert-description">La veille est active, de nouvelles alertes apparaîtront dès leur détection.</div>
+          </div>
+        `;
+        insertPoint.insertAdjacentHTML('beforeend', noAlertsHTML);
+      }
+    }
+
+    function updateInsights(insights) {
+      const containers = document.querySelectorAll('.insights-grid');
+      
+      containers.forEach(container => {
+        container.innerHTML = '';
+        
+        insights.forEach(insight => {
+          const insightHTML = `
+            <div class="insight-card">
+              <div class="insight-number">${insight.number}</div>
+              <div class="insight-title">${insight.title}</div>
+              <div class="insight-description">${insight.description}</div>
+            </div>
+          `;
+          container.insertAdjacentHTML('beforeend', insightHTML);
+        });
+      });
+    }
+
+    function showErrorMessage(message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: rgba(255, 71, 87, 0.95);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        z-index: 1000;
+        max-width: 400px;
+        font-family: var(--font-display);
+      `;
+      errorDiv.innerHTML = `
+        <div style="font-weight: 700; margin-bottom: 0.5rem;">❌ Erreur de connexion</div>
+        <div style="font-size: 0.9rem;">${message}</div>
+      `;
+      document.body.appendChild(errorDiv);
+      
+      setTimeout(() => {
+        errorDiv.style.transition = 'opacity 0.3s ease';
+        errorDiv.style.opacity = '0';
+        setTimeout(() => errorDiv.remove(), 300);
+      }, 5000);
+    }
+    
+    // Auto-refresh toutes les 5 minutes
+    setInterval(loadDashboardData, 300000);
+    
+    // Simulation de mise à jour en temps réel des notifications
+    setInterval(() => {
+      const notifCount = document.querySelector('.notification-count');
+      const currentCount = parseInt(notifCount.textContent);
+      if (Math.random() > 0.7) {
+        notifCount.textContent = currentCount + 1;
+        notifCount.classList.add('pulse');
+        setTimeout(() => notifCount.classList.remove('pulse'), 1000);
+      }
+    }, 15000);
+
+    // Gestion des filtres d'alertes
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('filter-tab')) {
+        const parent = e.target.parentElement;
+        parent.querySelectorAll('.filter-tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        e.target.classList.add('active');
+        
+        // Filtrer les alertes avec animation
+        const filterText = e.target.textContent.toLowerCase().trim();
+        const section = e.target.closest('.section');
+        const alerts = section.querySelectorAll('.alert-card');
+        
+        let visibleCount = 0;
+        
+        alerts.forEach(alert => {
+          const badge = alert.querySelector('.alert-badge');
+          const badgeType = badge ? badge.classList[1] : ''; // 'critical', 'important', 'info'
+          let shouldShow = false;
+          
+          if (filterText === 'toutes') {
+            shouldShow = true;
+          } else if (filterText === 'critiques') {
+            shouldShow = (badgeType === 'critical');
+          } else if (filterText === 'réglementaires') {
+            // Vérifier si l'alerte contient le tag #réglementation ou #conformité
+            const tags = alert.querySelectorAll('.tag');
+            tags.forEach(tag => {
+              const tagText = tag.textContent.toLowerCase();
+              console.log('Tag trouvé:', tagText); // Debug
+              if (tagText.includes('réglementation') || tagText.includes('conformité') || tagText.includes('conformite')) {
+                shouldShow = true;
+                console.log('Match réglementaire trouvé!'); // Debug
+              }
+            });
+            
+            // Vérifier aussi dans le titre et la description
+            const title = alert.querySelector('.alert-title')?.textContent.toLowerCase() || '';
+            const description = alert.querySelector('.alert-description')?.textContent.toLowerCase() || '';
+            if (title.includes('réglementation') || title.includes('conformité') || 
+                description.includes('réglementation') || description.includes('conformité') ||
+                description.includes('décret') || description.includes('hds') || description.includes('certification')) {
+              shouldShow = true;
+              console.log('Match réglementaire dans texte!'); // Debug
+            }
+          }
+          
+          // Appliquer le filtre avec animation
+          if (shouldShow) {
+            alert.classList.remove('hidden');
+            visibleCount++;
+          } else {
+            alert.classList.add('hidden');
+          }
+        });
+        
+        // Afficher le nombre de résultats
+        console.log(`Filtre "${filterText}": ${visibleCount} alerte(s) affichée(s)`);
+        
+        // Message si aucun résultat
+        const existingMsg = section.querySelector('.no-results-message');
+        if (existingMsg) existingMsg.remove();
+        
+        if (visibleCount === 0) {
+          const noResultsMsg = document.createElement('div');
+          noResultsMsg.className = 'no-results-message';
+          noResultsMsg.style.cssText = 'padding: 2rem; text-align: center; color: var(--text-muted); font-style: italic;';
+          noResultsMsg.textContent = `Aucune alerte dans la catégorie "${e.target.textContent}"`;
+          const alertsContainer = section.querySelector('.alert-card')?.parentElement || section;
+          alertsContainer.appendChild(noResultsMsg);
+        }
+      }
+    });
+
+    // Install prompt PWA
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      // Montrer un bouton d'installation personnalisé si souhaité
+    });
+
+    // Gestion offline
+    window.addEventListener('online', () => {
+      console.log('Connexion rétablie');
+    });
+
+    window.addEventListener('offline', () => {
+      console.log('Mode hors ligne');
+    });
+
+    // Auto-refresh (toutes les 5 minutes en production)
+    // setInterval(loadDashboardData, 300000);
+
+    console.log('%c🏥 MediConnect Dashboard v1.0', 'color: #00D9FF; font-size: 16px; font-weight: bold;');
+    console.log('%cMode DEMO - OAuth Google en pause', 'color: #FFB800; font-size: 12px;');
+  </script>
+</body>
+</html>
